@@ -1,0 +1,38 @@
+.chakra-fullscreen-overlay {
+    background-image: radial-gradient(
+        ellipse at center,
+        rgba(30, 100, 90, 0.50) 0%,
+        rgba(20, 60, 110, 0.60) 100%
+    );
+    opacity: 0;
+}
+
+.chakra-window-card {
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+}
+
+.chakra-window-icon {
+    icon-size: 48px;
+    margin-bottom: 4px;
+}
+
+.chakra-peek-wrap {
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.chakra-focused-name {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 500;
+    text-align: center;
+    background-color: rgba(18, 52, 47, 0.90);
+    border: 1.5px solid rgba(80, 150, 130, 0.60);
+    padding: 8px 24px;
+    border-radius: 12px;
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.50);
+    opacity: 0;
+}

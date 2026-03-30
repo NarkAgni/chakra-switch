@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.chakra-switch" path="/org/gnome/shell/extensions/chakra-switch/">
+
+    <!-- Card Layout -->
+    <key name="icon-size" type="i">
+      <default>32</default>
+      <summary>Icon size multiplier passed to DiagonalBlade</summary>
+    </key>
+    <key name="card-width" type="i">
+      <default>310</default>
+      <summary>Width of each card in pixels</summary>
+    </key>
+    <key name="card-height" type="i">
+      <default>300</default>
+      <summary>Height of each card in pixels</summary>
+    </key>
+    <key name="card-gap" type="i">
+      <default>225</default>
+      <summary>Horizontal gap between cards in pixels</summary>
+    </key>
+    <key name="skew" type="i">
+      <default>90</default>
+      <summary>Horizontal skew amount for the diagonal blade shape</summary>
+    </key>
+    <key name="card-opacity" type="i">
+      <default>90</default>
+      <summary>Card background opacity as percentage (10–100)</summary>
+    </key>
+    <key name="y-offset" type="i">
+      <default>0</default>
+      <summary>Vertical offset as percentage of monitor height (-50 to 50)</summary>
+    </key>
+    <key name="text-size" type="i">
+      <default>13</default>
+      <summary>App name font size in the card</summary>
+    </key>
+    <key name="text-bottom-pad" type="i">
+      <default>16</default>
+      <summary>App name bottom padding in pixels</summary>
+    </key>
+    <key name="show-app-name" type="b">
+      <default>true</default>
+      <summary>Show app name on focused card</summary>
+    </key>
+
+    <!-- Animation -->
+    <key name="stagger-gap-ms" type="i">
+      <default>200</default>
+      <summary>Delay between each card appearing during entry (ms)</summary>
+    </key>
+    <key name="ease-duration-ms" type="i">
+      <default>600</default>
+      <summary>Duration of the entry animation (ms)</summary>
+    </key>
+    <key name="focus-duration-ms" type="i">
+      <default>350</default>
+      <summary>Duration of the focus transition animation (ms)</summary>
+    </key>
+    <key name="focus-scale" type="i">
+      <default>120</default>
+      <summary>Scale of focused card as percentage (100 = no scale)</summary>
+    </key>
+
+    <!-- Peek Preview -->
+    <key name="peek-enabled" type="b">
+      <default>true</default>
+      <summary>Enable window peek preview on focus</summary>
+    </key>
+    <key name="peek-max-scale" type="i">
+      <default>80</default>
+      <summary>Maximum size of peek preview as percentage of monitor</summary>
+    </key>
+    <key name="peek-opacity" type="i">
+      <default>90</default>
+      <summary>Peek preview opacity as percentage</summary>
+    </key>
+    <key name="peek-show-duration-ms" type="i">
+      <default>250</default>
+      <summary>Duration of peek preview fade-in (ms)</summary>
+    </key>
+    <key name="peek-hide-duration-ms" type="i">
+      <default>150</default>
+      <summary>Duration of peek preview fade-out (ms)</summary>
+    </key>
+
+  </schema>
+</schemalist>

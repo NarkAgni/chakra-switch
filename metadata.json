@@ -1,0 +1,19 @@
+{
+  "description": "A modern visual app switcher with a diagonal blade layout, smooth animations, and a live window peek preview. Fully configurable via the extension preferences.",
+  "donations": {
+    "buymeacoffee": "narkagni"
+  },
+  "name": "Chakra Switch",
+  "settings-schema": "org.gnome.shell.extensions.chakra-switch",
+  "shell-version": [
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "50"
+  ],
+  "url": "https://github.com/narkagni/chakra-switch",
+  "uuid": "chakra-switch@narkagni",
+  "version": 1
+}
