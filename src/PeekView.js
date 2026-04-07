@@ -130,7 +130,7 @@ export default class PeekView {
             this._container.destroy_all_children();
             this._container.add_child(wrapBin);
             this._container.set_size(previewW, previewH);
-            this._container.set_position(targetX, targetY);
+            this._container.set_position(targetX+monitor.width, targetY);
             this._container.set_pivot_point(0.5, 0.5);
             this._container.set_scale(0.94, 0.94);
 
@@ -141,6 +141,8 @@ export default class PeekView {
                 opacity: targetOpacity,
                 scale_x: 1.0,
                 scale_y: 1.0,
+                x: targetX,
+                y: targetY,
                 duration: showDuration,
                 mode: Clutter.AnimationMode.EASE_OUT_QUINT,
             });
@@ -151,13 +153,12 @@ export default class PeekView {
         this._restoreWindows();
 
         if (this._container.opacity > 0) {
-            const hideDuration = this._settings.get_int('peek-hide-duration-ms');
             this._container.remove_all_transitions();
             this._container.ease({
                 opacity: 0,
                 scale_x: 0.96,
                 scale_y: 0.96,
-                duration: hideDuration,
+                duration: 0,
                 mode: Clutter.AnimationMode.EASE_IN_QUINT,
                 onComplete: () => {
                     this._container.destroy_all_children();
