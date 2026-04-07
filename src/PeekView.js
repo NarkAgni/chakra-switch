@@ -63,11 +63,7 @@ export default class PeekView {
         this._savedOpacities.forEach((origOpacity, wa) => {
             try {
                 if (wa && wa.get_stage()) {
-                    wa.ease({
-                        opacity: origOpacity,
-                        duration: 200,
-                        mode: Clutter.AnimationMode.EASE_IN_QUAD,
-                    });
+                    wa.opacity = origOpacity
                 }
             } catch (e) {}
         });

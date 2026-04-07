@@ -345,6 +345,7 @@ export default class ChakraSwitcher {
             }
         } catch (e) {}
 
+        if (windowToActivate) Main.activateWindow(windowToActivate);
         this._peekView.hide();
 
         this._overlay.ease({
@@ -354,7 +355,6 @@ export default class ChakraSwitcher {
             onComplete: () => {
                 if (this._overlay)    this._overlay.visible    = false;
                 if (this._container)  this._container.visible  = false;
-                if (windowToActivate) Main.activateWindow(windowToActivate);
             },
         });
 
