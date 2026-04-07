@@ -349,7 +349,7 @@ export default class ChakraSwitcher {
 
         this._overlay.ease({
             opacity: 0,
-            duration: 200,
+            duration: 10,
             mode: Clutter.AnimationMode.EASE_IN_QUAD,
             onComplete: () => {
                 if (this._overlay)    this._overlay.visible    = false;
