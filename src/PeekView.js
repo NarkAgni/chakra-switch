@@ -63,11 +63,7 @@ export default class PeekView {
         this._savedOpacities.forEach((origOpacity, wa) => {
             try {
                 if (wa && wa.get_stage()) {
-                    wa.ease({
-                        opacity: origOpacity,
-                        duration: 200,
-                        mode: Clutter.AnimationMode.EASE_IN_QUAD,
-                    });
+                    wa.opacity = origOpacity
                 }
             } catch (e) {}
         });
@@ -106,10 +102,11 @@ export default class PeekView {
                 sourceActor = windowActor;
             }
 
-            const maxScale = this._settings.get_int('peek-max-scale') / 100;
-            const monitor  = Main.layoutManager.primaryMonitor;
-            const maxW     = monitor.width  * maxScale;
-            const maxH     = monitor.height * maxScale;
+            const maxScale  = this._settings.get_int('peek-max-scale') / 100;
+            const monitor   = Main.layoutManager.primaryMonitor;
+            const workArea  = global.workspace_manager.get_active_workspace().get_work_area_for_monitor(monitor);
+            const maxW      = workArea.width  * maxScale;
+            const maxH      = workArea.height * maxScale;
 
             let previewW = w, previewH = h;
             if (previewW > maxW) { previewW = maxW; previewH = (h / w) * previewW; }
@@ -123,14 +120,14 @@ export default class PeekView {
                 style_class: 'chakra-peek-wrap',
             });
 
-            const targetX = monitor.x + (monitor.width  / 2) - (previewW  / 2);
-            const targetY = monitor.y + (monitor.height / 2) - (previewH / 2);
+            const targetX = workArea.x + (workArea.width  / 2) - (previewW  / 2);
+            const targetY = workArea.y + (workArea.height / 2) - (previewH / 2);
 
             this._container.remove_all_transitions();
             this._container.destroy_all_children();
             this._container.add_child(wrapBin);
             this._container.set_size(previewW, previewH);
-            this._container.set_position(targetX, targetY);
+            this._container.set_position(targetX+workArea.width, targetY);
             this._container.set_pivot_point(0.5, 0.5);
             this._container.set_scale(0.94, 0.94);
 
@@ -141,6 +138,8 @@ export default class PeekView {
                 opacity: targetOpacity,
                 scale_x: 1.0,
                 scale_y: 1.0,
+                x: targetX,
+                y: targetY,
                 duration: showDuration,
                 mode: Clutter.AnimationMode.EASE_OUT_QUINT,
             });
@@ -151,13 +150,12 @@ export default class PeekView {
         this._restoreWindows();
 
         if (this._container.opacity > 0) {
-            const hideDuration = this._settings.get_int('peek-hide-duration-ms');
             this._container.remove_all_transitions();
             this._container.ease({
                 opacity: 0,
                 scale_x: 0.96,
                 scale_y: 0.96,
-                duration: hideDuration,
+                duration: 0,
                 mode: Clutter.AnimationMode.EASE_IN_QUINT,
                 onComplete: () => {
                     this._container.destroy_all_children();

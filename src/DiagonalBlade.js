@@ -276,12 +276,9 @@ export function buildLayout(container, windows, monitor, settings, onCardClick) 
         let minD = Infinity, maxD = -Infinity;
 
         for (let i = 0; i < N; i++) {
-            let d = i;
-            if (d > N / 2)      d -= N;
-            else if (d < -N / 2) d += N;
-            rawDists[i] = d;
-            if (d < minD) minD = d;
-            if (d > maxD) maxD = d;
+            rawDists[i] = i - N/2;
+            if (rawDists[i] < minD) minD = rawDists[i];
+            if (rawDists[i] > maxD) maxD = rawDists[i];
         }
 
         const midOffset = (minD + maxD) / 2;

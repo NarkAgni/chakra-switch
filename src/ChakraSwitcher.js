@@ -86,8 +86,9 @@ export default class ChakraSwitcher {
 
         const windows = workspace.list_windows()
             .filter(win => win.get_window_type() === Meta.WindowType.NORMAL && !win.is_skip_taskbar())
-            .map(win => ({ win, app: tracker.get_window_app(win) }))
-            .filter(({ app }) => !!app);
+            .map(win => ({ win, app: tracker.get_window_app(win), lastFocused: win.get_user_time() }))
+            .filter(({ app }) => !!app)
+            .sort((a, b) => b.lastFocused - a.lastFocused);
 
         if (windows.length === 0) return;
 
@@ -303,7 +304,7 @@ export default class ChakraSwitcher {
         this._buildWindowList();
         if (this._cards.length === 0) return;
 
-        this._selectedIndex = backward ? this._cards.length - 1 : 0;
+        this._selectedIndex = backward ? Math.max(0, this._cards.length - 2) : Math.min(this._cards.length, 1);
         this._container.visible = true;
         this._overlay.visible   = true;
 
@@ -344,6 +345,7 @@ export default class ChakraSwitcher {
             }
         } catch (e) {}
 
+        if (windowToActivate) Main.activateWindow(windowToActivate);
         this._peekView.hide();
 
         this._overlay.ease({
@@ -353,7 +355,6 @@ export default class ChakraSwitcher {
             onComplete: () => {
                 if (this._overlay)    this._overlay.visible    = false;
                 if (this._container)  this._container.visible  = false;
-                if (windowToActivate) Main.activateWindow(windowToActivate);
             },
         });
 
