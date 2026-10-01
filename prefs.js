@@ -110,6 +110,7 @@ export default class ChakraPreferences extends ExtensionPreferences {
             description: 'Live window thumbnail shown behind the switcher when a card is focused',
         });
         this._addSwitch(group, 'peek-enabled',          'Enable Peek',   'Show a live window preview on focus');
+        this._addSwitch(group, 'peek-coverflow',        'Coverflow',     'Show every window side by side, the focused one facing you, instead of one preview');
         this._addSpin  (group, 'peek-max-scale',        'Max Scale (%)', 'Maximum preview size relative to your monitor',  'zoom-fit-best-symbolic',           30, 100,  5);
         this._addSpin  (group, 'peek-opacity',          'Opacity (%)',   'Translucency of the peek preview',               'display-brightness-symbolic',      10, 100,  5);
         this._addSpin  (group, 'peek-show-duration-ms', 'Fade In (ms)', 'How fast the preview appears',                   'preferences-system-time-symbolic', 50, 600, 25);
