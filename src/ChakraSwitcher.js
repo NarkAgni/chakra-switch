@@ -305,6 +305,13 @@ export default class ChakraSwitcher {
         if (this._cards.length === 0) return;
 
         this._selectedIndex = backward ? Math.max(0, this._cards.length - 2) : Math.min(this._cards.length, 1);
+
+        // The container opacity is animated now, so a re-open landing inside the
+        // dismiss fade has to drop that transition and reset it to full.
+        this._overlay.remove_all_transitions();
+        this._container.remove_all_transitions();
+        this._container.opacity = 255;
+
         this._container.visible = true;
         this._overlay.visible   = true;
 
@@ -353,8 +360,16 @@ export default class ChakraSwitcher {
             duration: 200,
             mode: Clutter.AnimationMode.EASE_IN_QUAD,
             onComplete: () => {
-                if (this._overlay)    this._overlay.visible    = false;
-                if (this._container)  this._container.visible  = false;
+                if (this._overlay) this._overlay.visible = false;
+            },
+        });
+
+        this._container.ease({
+            opacity: 0,
+            duration: 200,
+            mode: Clutter.AnimationMode.EASE_IN_QUAD,
+            onComplete: () => {
+                if (this._container) this._container.visible = false;
             },
         });
 
