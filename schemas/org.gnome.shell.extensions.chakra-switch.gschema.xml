@@ -83,6 +83,10 @@
       <default>150</default>
       <summary>Duration of peek preview fade-out (ms)</summary>
     </key>
+    <key name="peek-coverflow" type="b">
+      <default>false</default>
+      <summary>Lay every window out in a coverflow instead of one preview</summary>
+    </key>
 
   </schema>
 </schemalist>

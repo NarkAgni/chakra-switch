@@ -93,6 +93,9 @@ export default class ChakraSwitcher {
         if (windows.length === 0) return;
 
         const monitor = Main.layoutManager.primaryMonitor;
+        // the coverflow peek lays its previews out in the same order as the cards
+        this._peekView.setWindows(windows.map(({ win }) => win));
+
         const result  = buildLayout(this._container, windows, monitor, this._settings, (win) => this.hide(false, win));
 
         this._cards        = result.cards;
