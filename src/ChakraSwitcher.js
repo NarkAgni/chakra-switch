@@ -51,10 +51,9 @@ export default class ChakraSwitcher {
         this._container.visible = false;
         this._overlay.visible   = false;
 
-        this._peekView = new PeekView(this._container, settings);
-
         Main.uiGroup.add_child(this._overlay);
         Main.uiGroup.add_child(this._container);
+        this._peekView = new PeekView(this._container, settings);
 
         const uiGroup = Main.layoutManager.uiGroup;
         this._overlay.add_constraint(new Clutter.BindConstraint({
@@ -66,12 +65,9 @@ export default class ChakraSwitcher {
 
         this._container.connect('key-press-event',   this._onKeyPress.bind(this));
         this._container.connect('key-release-event', this._onKeyRelease.bind(this));
-        this._overlay.connect('motion-event',        this._onPointerMotion.bind(this));
-        this._container.connect('motion-event',      this._onPointerMotion.bind(this));
-        this._overlay.connect('button-press-event',  this._onPointerClick.bind(this));
-        this._container.connect('button-press-event', this._onPointerClick.bind(this));
-        this._overlay.connect('scroll-event',        this._onScroll.bind(this));
-        this._container.connect('scroll-event',      this._onScroll.bind(this));
+        // The pointer never selects - motion, button and scroll are
+        // deliberately left unconnected, so hover, click and the wheel cannot
+        // move the selection in either layout.
     }
 
     _buildWindowList() {
@@ -84,16 +80,18 @@ export default class ChakraSwitcher {
         const workspace = global.workspace_manager.get_active_workspace();
         const tracker   = Shell.WindowTracker.get_default();
 
-        const windows = workspace.list_windows()
+        const windows = global.display.get_tab_list(Meta.TabList.NORMAL, workspace)
             .filter(win => win.get_window_type() === Meta.WindowType.NORMAL && !win.is_skip_taskbar())
-            .map(win => ({ win, app: tracker.get_window_app(win), lastFocused: win.get_user_time() }))
-            .filter(({ app }) => !!app)
-            .sort((a, b) => b.lastFocused - a.lastFocused);
+            .map(win => ({ win, app: tracker.get_window_app(win) }))
+            .filter(({ app }) => !!app);
 
         if (windows.length === 0) return;
 
         const monitor = Main.layoutManager.primaryMonitor;
-        const result  = buildLayout(this._container, windows, monitor, this._settings, (win) => this.hide(false, win));
+        // the peek lays its previews out in the same order as the cards
+        this._peekView.setWindows(windows.map(({ win }) => win));
+
+        const result  = buildLayout(this._container, windows, monitor, this._settings, () => {});
 
         this._cards        = result.cards;
         this._layoutCenter = result.center;
@@ -207,6 +205,15 @@ export default class ChakraSwitcher {
             const targetX     = card.actor._targetX !== undefined ? card.actor._targetX : card.actor.x;
             const targetY     = card.actor._targetY !== undefined ? card.actor._targetY : card.actor.y;
 
+            // A card crossing the back of the carousel must not fly across
+            // the selected icon. Move it while transparent, then fade it in.
+            if (!isEntry && card.actor._carouselWrapped) {
+                card.actor.remove_all_transitions();
+                card.actor.set_position(targetX, targetY);
+                card.actor.set_scale(baseScale, baseScale);
+                card.actor.opacity = 0;
+            }
+
             if (isFocused) {
                 try { this._peekView.show(card.window); } catch (e) {}
                 card.actor.add_style_class_name('chakra-window-card-focused');
@@ -304,7 +311,15 @@ export default class ChakraSwitcher {
         this._buildWindowList();
         if (this._cards.length === 0) return;
 
-        this._selectedIndex = backward ? Math.max(0, this._cards.length - 2) : Math.min(this._cards.length, 1);
+        this._selectedIndex = backward
+            ? this._cards.length - 1
+            : Math.min(1, this._cards.length - 1);
+        // The container opacity is animated now, so a re-open landing inside the
+        // dismiss fade has to drop that transition and reset it to full.
+        this._overlay.remove_all_transitions();
+        this._container.remove_all_transitions();
+        this._container.opacity = 255;
+
         this._container.visible = true;
         this._overlay.visible   = true;
 
@@ -332,6 +347,7 @@ export default class ChakraSwitcher {
 
     hide(isCancel = false, windowToActivate = null) {
         if (!this._isShowing) return;
+        this._isShowing = false;
 
         const focus = global.stage.get_key_focus();
         if (focus && this._container.contains(focus)) global.stage.set_key_focus(null);
@@ -345,20 +361,27 @@ export default class ChakraSwitcher {
             }
         } catch (e) {}
 
-        if (windowToActivate) Main.activateWindow(windowToActivate);
         this._peekView.hide();
 
         this._overlay.ease({
             opacity: 0,
-            duration: 200,
+            duration: 130,
             mode: Clutter.AnimationMode.EASE_IN_QUAD,
             onComplete: () => {
-                if (this._overlay)    this._overlay.visible    = false;
-                if (this._container)  this._container.visible  = false;
+                if (this._overlay) this._overlay.visible = false;
             },
         });
 
-        this._isShowing = false;
+        this._container.ease({
+            opacity: 0,
+            duration: 130,
+            mode: Clutter.AnimationMode.EASE_IN_QUAD,
+            onComplete: () => {
+                if (this._container) this._container.visible = false;
+            },
+        });
+
+        if (windowToActivate) Main.activateWindow(windowToActivate);
     }
 
     destroy() {
@@ -366,6 +389,11 @@ export default class ChakraSwitcher {
             if (this._modalGrab) Main.popModal(this._modalGrab);
             else Main.popModal(this._container);
         } catch (e) {}
+
+        this._modalGrab = null;
+        this._isShowing = false;
+        this._peekView.destroy();
+        this._peekView = null;
 
         if (this._container) { this._container.destroy(); this._container = null; }
         if (this._overlay)   { this._overlay.destroy();   this._overlay   = null; }
