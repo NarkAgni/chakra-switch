@@ -32,15 +32,17 @@
   <p>
     Open windows are displayed as parallelogram shaped cards arranged in a horizontal row
     The focused card is highlighted with a red border and scales up slightly
-    With more than 5 windows the layout becomes a scrollable carousel only the nearest cards are visible
+    Cards form a circular carousel at every window count, with the selected icon centered.
+    Cards crossing the back of the carousel reposition while transparent instead of sweeping across the screen.
   </p>
 </details>
 
 <details>
   <summary><strong>Live Peek Preview</strong></summary>
   <p>
-    When a card is focused the actual window content appears as a scaled down live clone
-    centered behind the switcher All other windows fade out so the preview is always clean
+    Live window clones form a Coverflow carousel behind the icon cards.
+    The selected window is centered and front-facing; side previews rotate, shrink and fade with distance.
+    The preview order follows the icon carousel and wraps in either direction.
     Peek can be toggled and fully tuned (opacity, scale, animation speed) in preferences
   </p>
 </details>
@@ -107,9 +109,27 @@ cd chakra-switch</pre>
   <li><strong>Open Switcher:</strong> <code>Alt+Tab</code></li>
   <li><strong>Cycle Forward:</strong> <code>Alt+Tab</code> / <code>→</code> / <code>↓</code></li>
   <li><strong>Cycle Backward:</strong> <code>Alt+Shift+Tab</code> / <code>←</code> / <code>↑</code></li>
-  <li><strong>Activate Window:</strong> Release <code>Alt</code> or click a card</li>
-  <li><strong>Scroll:</strong> Mouse wheel cycles through cards (carousel mode)</li>
+  <li><strong>Activate Window:</strong> Release <code>Alt</code></li>
+  <li><strong>Cancel:</strong> <code>Escape</code></li>
+  <li><strong>Keyboard only:</strong> Pointer movement, clicks and scrolling do not change the selection</li>
+  <li><strong>Window order:</strong> GNOME's most-recently-used window order</li>
 </ul>
+
+<hr>
+
+<h2>Regression Testing</h2>
+<p>
+  Compile the schemas with <code>glib-compile-schemas --strict schemas</code>.
+  In an isolated nested GNOME Shell with animations enabled, open Looking Glass
+  and run the following, replacing the path with the checkout location:
+</p>
+<pre>(async () =&gt; (await import('file:///path/to/chakra-switch/tests/nested-shell.js')).run())()</pre>
+<p>
+  The tests use real Clutter actors and transitions. They cover dismissal before the
+  first animation frame, rapid reopening, window closure, preview destruction, and
+  forward/backward icon/preview wraparound with 1, 2, 3, 5 and 8 windows.
+  Run this only in the isolated test shell; it temporarily replaces the test window list.
+</p>
 
 <hr>
 

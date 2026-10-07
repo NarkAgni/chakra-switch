@@ -154,7 +154,8 @@ function makeCard(win, app, settings) {
         cr.$dispose();
     });
 
-    settings.connect('changed::card-opacity', () => bgCanvas.queue_repaint());
+    const opacitySignal = settings.connect('changed::card-opacity', () => bgCanvas.queue_repaint());
+    winBox.connect('destroy', () => settings.disconnect(opacitySignal));
 
     const angle  = Math.atan(-skew / h);
     const matrix = new Graphene.Matrix();
@@ -221,6 +222,7 @@ function makeCard(win, app, settings) {
     textWrapper.opacity = 0;
 
     winBox.connect('style-changed', () => {
+        if (!winBox.get_stage()) return;
         bgCanvas.queue_repaint();
         borderCanvas.queue_repaint();
 
@@ -271,55 +273,7 @@ export function buildLayout(container, windows, monitor, settings, onCardClick) 
         cards[i] = { actor: winBox, window: win, appName: app.get_name() || win.get_title() || '' };
     }
 
-    if (N <= 5) {
-        const rawDists = new Array(N);
-        let minD = Infinity, maxD = -Infinity;
-
-        for (let i = 0; i < N; i++) {
-            rawDists[i] = i - N/2;
-            if (rawDists[i] < minD) minD = rawDists[i];
-            if (rawDists[i] > maxD) maxD = rawDists[i];
-        }
-
-        const midOffset = (minD + maxD) / 2;
-
-        for (let i = 0; i < N; i++) {
-            const adjusted = rawDists[i] - midOffset;
-            const posX = center.x - (cardWidth / 2) + (adjusted * gap);
-            const posY = center.y - (cardHeight / 2);
-            cards[i].actor._targetX    = posX;
-            cards[i].actor._targetY    = posY;
-            cards[i].actor._baseScale  = 1.0;
-            cards[i].actor._baseOpacity = 255;
-            cards[i].actor.set_position(posX, posY);
-        }
-
-        function updateStaticPositions(cardsArray, selectedIndex, layoutCenter, layoutContainer) {
-            const total = cardsArray.length;
-            if (total === 0) return;
-
-            const renderOrder = [];
-            for (let i = 0; i < total; i++) {
-                const card = cardsArray[i];
-                if (!card || !card.actor) continue;
-                let dist = i - selectedIndex;
-                if (dist > total / 2)      dist -= total;
-                else if (dist < -total / 2) dist += total;
-                renderOrder.push({ actor: card.actor, absDist: Math.abs(dist) });
-            }
-
-            if (layoutContainer) {
-                renderOrder.sort((a, b) => b.absDist - a.absDist);
-                for (const item of renderOrder) {
-                    layoutContainer.set_child_above_sibling(item.actor, null);
-                }
-            }
-        }
-
-        updateStaticPositions(cards, 0, center, container);
-        return { cards, center, updateLayout: updateStaticPositions, disableHover: false };
-    }
-
+    // Every window count uses the same circular order as the peek previews.
     function updateScrollPositions(cardsArray, selectedIndex, layoutCenter, layoutContainer) {
         const total = cardsArray.length;
         if (total === 0) return;
@@ -333,6 +287,10 @@ export function buildLayout(container, windows, monitor, settings, onCardClick) 
             let dist = i - selectedIndex;
             if (dist > total / 2)      dist -= total;
             else if (dist < -total / 2) dist += total;
+
+            const previous = card.actor._carouselDist;
+            card.actor._carouselWrapped = previous !== undefined && Math.abs(dist - previous) > 1;
+            card.actor._carouselDist = dist;
 
             const absDist = Math.abs(dist);
             let opacity = 255, scale = 1.0;
