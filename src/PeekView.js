@@ -24,7 +24,11 @@ export default class PeekView {
         this._settings = settings;
         this._parent   = parentActor;
 
-        this._container = new St.Bin({ reactive: false, opacity: 0 });
+        // Hidden whenever no preview is up. At opacity 0 the container is still
+        // mapped at the size of the last preview, and drag-and-drop picks its
+        // drop target with Clutter.PickMode.ALL, so it would take every drop
+        // in the middle of the screen.
+        this._container = new St.Bin({ reactive: false, opacity: 0, visible: false });
 
         Main.uiGroup.add_child(this._container);
         Main.uiGroup.set_child_below_sibling(this._container, this._parent);
@@ -36,6 +40,7 @@ export default class PeekView {
         this._restoreWindows();
         this._container.destroy_all_children();
         this._container.opacity = 0;
+        this._container.hide();
     }
 
     _hideAllWindows() {
@@ -130,6 +135,7 @@ export default class PeekView {
             this._container.set_position(targetX+workArea.width, targetY);
             this._container.set_pivot_point(0.5, 0.5);
             this._container.set_scale(0.94, 0.94);
+            this._container.show();
 
             const targetOpacity = Math.round(this._settings.get_int('peek-opacity') / 100 * 255);
             const showDuration  = this._settings.get_int('peek-show-duration-ms');
@@ -148,6 +154,7 @@ export default class PeekView {
 
     hide() {
         this._restoreWindows();
+        this._container.hide();
 
         if (this._container.opacity > 0) {
             this._container.remove_all_transitions();
