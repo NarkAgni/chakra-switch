@@ -71,6 +71,10 @@ export default class ChakraPreferences extends ExtensionPreferences {
         this._addSpin(posGroup, 'y-offset', 'Vertical Offset (%)', 'Shift the switcher up or down as % of screen height', 'go-up-symbolic', -50, 50, 1);
         page.add(posGroup);
 
+        const behaviorGroup = new Adw.PreferencesGroup({ title: 'Behavior' });
+        this._addSwitch(behaviorGroup, 'open-in-overview', 'Open in Overview', 'Alt+Tab also opens the switcher while the Overview or app grid is shown');
+        page.add(behaviorGroup);
+
         return page;
     }
 

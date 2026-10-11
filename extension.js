@@ -21,20 +21,30 @@ import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import ChakraSwitcher from './src/ChakraSwitcher.js';
 
 
+const BINDINGS = [
+    'switch-applications',
+    'switch-applications-backward',
+    'switch-windows',
+    'switch-windows-backward',
+];
+
+
 export default class ChakraSwitchExtension extends Extension {
     enable() {
-        const settings = this.getSettings();
-        this._switcher  = new ChakraSwitcher(settings);
+        this._settings = this.getSettings();
+        this._switcher = new ChakraSwitcher(this._settings);
 
-        const actionModes = Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW;
-        const bindings = [
-            'switch-applications',
-            'switch-applications-backward',
-            'switch-windows',
-            'switch-windows-backward',
-        ];
+        this._bindSwitcher();
+        this._overviewChangedId = this._settings.connect('changed::open-in-overview',
+            () => this._bindSwitcher());
+    }
 
-        bindings.forEach(binding => {
+    _bindSwitcher() {
+        const actionModes = this._settings.get_boolean('open-in-overview')
+            ? Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW
+            : Shell.ActionMode.NORMAL;
+
+        BINDINGS.forEach(binding => {
             Main.wm.setCustomKeybindingHandler(binding, actionModes, () => {
                 this._switcher.toggle(binding.includes('backward'));
             });
@@ -42,16 +52,13 @@ export default class ChakraSwitchExtension extends Extension {
     }
 
     disable() {
-        const actionModes = Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW;
-        const bindings = [
-            'switch-applications',
-            'switch-applications-backward',
-            'switch-windows',
-            'switch-windows-backward',
-        ];
+        this._settings.disconnect(this._overviewChangedId);
+        this._settings = null;
 
-        bindings.forEach(binding => {
-            Main.wm.setCustomKeybindingHandler(binding, actionModes, Main.wm._startSwitcher.bind(Main.wm));
+        // Hand the bindings back the way GNOME registers them: normal mode only.
+        BINDINGS.forEach(binding => {
+            Main.wm.setCustomKeybindingHandler(binding, Shell.ActionMode.NORMAL,
+                Main.wm._startSwitcher.bind(Main.wm));
         });
 
         if (this._switcher) {

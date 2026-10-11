@@ -65,6 +65,7 @@
     <li><strong>App Label:</strong> Toggle, font size, and bottom padding of the focused app name</li>
     <li><strong>Animation:</strong> Entry stagger delay, entry duration, focus duration, focus scale</li>
     <li><strong>Peek Preview:</strong> Enable/disable, max scale, opacity, fade-in and fade-out speed</li>
+    <li><strong>Behavior:</strong> Whether Alt+Tab also opens the switcher in the Overview and app grid</li>
   </ul>
 </details>
 

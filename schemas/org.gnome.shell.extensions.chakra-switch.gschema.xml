@@ -44,6 +44,12 @@
       <summary>Show app name on focused card</summary>
     </key>
 
+    <!-- Behavior -->
+    <key name="open-in-overview" type="b">
+      <default>true</default>
+      <summary>Open the switcher with Alt+Tab while the Overview or app grid is shown</summary>
+    </key>
+
     <!-- Animation -->
     <key name="stagger-gap-ms" type="i">
       <default>200</default>
